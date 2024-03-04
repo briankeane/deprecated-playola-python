@@ -7,7 +7,6 @@ class UserBase(SQLModel):
     email: str = Field(unique=True, index=True)
     is_active: bool = True
     is_superuser: bool = False
-    full_name: str | None = None
 
 
 # Properties to receive via API on creation
@@ -19,7 +18,6 @@ class UserCreate(UserBase):
 class UserCreateOpen(SQLModel):
     email: str
     password: str
-    full_name: str | None = None
 
 
 # Properties to receive via API on update, all are optional
