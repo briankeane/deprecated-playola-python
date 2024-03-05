@@ -1,10 +1,7 @@
 from typing import Dict
 
-from sqlmodel import Field, Relationship, SQLModel, Column, JSON
 from sqlalchemy.sql.sqltypes import JSON
-
-
-# from sqlalchemy.dialects.postgresql import JSON
+from sqlmodel import Field, Relationship, SQLModel, Column
 
 
 # Shared properties
