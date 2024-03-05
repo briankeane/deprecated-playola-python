@@ -3,7 +3,15 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, SpotifyUser, SpotifyUserCreate
+from app.models import (
+    Item,
+    ItemCreate,
+    User,
+    UserCreate,
+    UserUpdate,
+    SpotifyUser,
+    SpotifyUserCreate,
+)
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -47,6 +55,7 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
         return None
     return db_user
 
+
 def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item:
     db_item = Item.model_validate(item_in, update={"owner_id": owner_id})
     session.add(db_item)
@@ -54,7 +63,10 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item
     session.refresh(db_item)
     return db_item
 
-def create_spotify_user(*, session: Session, spotify_user_in: SpotifyUserCreate) -> SpotifyUser:
+
+def create_spotify_user(
+    *, session: Session, spotify_user_in: SpotifyUserCreate
+) -> SpotifyUser:
     db_spotify_user = SpotifyUser.model_validate(spotify_user_in)
     session.add(db_spotify_user)
     session.commit()
