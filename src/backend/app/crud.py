@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Type
 
 from sqlmodel import Session, select
 
@@ -11,6 +11,7 @@ from app.models import (
     UserUpdate,
     SpotifyUser,
     SpotifyUserCreate,
+    SpotifyUserUpdate
 )
 
 
@@ -72,3 +73,15 @@ def create_spotify_user(
     session.commit()
     session.refresh(db_spotify_user)
     return db_spotify_user
+
+def update_spotify_user(*, session: Session, spotify_user_id: int, spotify_user_in: SpotifyUserUpdate) -> SpotifyUser | None:
+    spotify_user: SpotifyUser | None = session.get(SpotifyUser, spotify_user_id)
+    if not spotify_user:
+        return None
+    spotify_user_data = spotify_user_in.model_dump(exclude_unset=True)
+    spotify_user.sqlmodel_update(spotify_user_data)
+    session.add(spotify_user)
+    session.commit()
+    session.refresh(spotify_user)
+    return spotify_user
+
