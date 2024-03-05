@@ -54,8 +54,8 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item
     session.refresh(db_item)
     return db_item
 
-def create_spotify_user(*, session: Session, spotify_user_in: SpotifyUserCreate, user_id: int) -> SpotifyUser:
-    db_spotify_user = SpotifyUser.model_validate(spotify_user_in, update={"user_id": user_id})
+def create_spotify_user(*, session: Session, spotify_user_in: SpotifyUserCreate) -> SpotifyUser:
+    db_spotify_user = SpotifyUser.model_validate(spotify_user_in)
     session.add(db_spotify_user)
     session.commit()
     session.refresh(db_spotify_user)

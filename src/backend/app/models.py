@@ -1,6 +1,9 @@
 from typing import Dict
 
 from sqlmodel import Field, Relationship, SQLModel, Column, JSON
+from sqlalchemy.sql.sqltypes import JSON
+
+
 # from sqlalchemy.dialects.postgresql import JSON
 
 
@@ -114,23 +117,29 @@ class NewPassword(SQLModel):
     new_password: str
 
 
-class SpotifyUser(SQLModel, table=True):
+class SpotifyUserBase(SQLModel):
+    spotify_user_id: str
+    spotify_display_name: str
+    spotify_token_info: dict
+
+
+class SpotifyUser(SpotifyUserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     spotify_display_name: str | None = Field(default=None)
     spotify_user_id: str | None = Field(default=None, nullable=False)
     user_id: int = Field(default=None, foreign_key="user.id", nullable=False)
-    spotify_token_info: Dict = Field(default_factory=Dict, sa_column=Column(JSON))
+    spotify_token_info: dict | None = Field(default=None, sa_column=Column(JSON))
 
     class Config:
         arbitrary_types_allowed = True
 
 
-# class SpotifyUserCreate(SpotifyUser):
-#     pass
+class SpotifyUserCreate(SpotifyUserBase):
+    user_id: int
 
 
-# class SpotifyUserUpdate(SpotifyUser):
-    # spotify_display_name: str | None = None
-    # spotify_user_id: str | None = None
-    # user_id: int | None = None
-    # spotify_token_info: Dict | None = None
+class SpotifyUserUpdate(SpotifyUserBase):
+    spotify_display_name: str | None = None
+    spotify_user_id: str | None = None
+    user_id: int | None = None
+    spotify_token_info: Dict | None = None
