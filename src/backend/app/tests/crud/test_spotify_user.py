@@ -84,3 +84,5 @@ def test_update_spotify_user(db: Session) -> None:
     spotify_user_retrieved = db.get(SpotifyUser, spotify_user.id)
     assert spotify_user_retrieved.spotify_display_name == new_spotify_display_name
     assert spotify_user_retrieved.spotify_token_info == new_spotify_token_info
+    assert spotify_user_retrieved.spotify_user_id == spotify_user.spotify_user_id
+
