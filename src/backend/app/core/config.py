@@ -94,5 +94,9 @@ class Settings(BaseSettings):
     USERS_OPEN_REGISTRATION: bool = False
     model_config = SettingsConfigDict(case_sensitive=True)
 
+    SPOTIFY_CLIENT_ID: str
+    SPOTIFY_CLIENT_SECRET: str
+    SPOTFIY_REDIRECT_URI: str
+
 
 settings = Settings()
