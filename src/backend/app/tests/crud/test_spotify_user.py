@@ -2,6 +2,7 @@ from sqlmodel import Session
 
 from app.models import SpotifyUserCreate, SpotifyUser, SpotifyUserUpdate
 from app.tests.utils.user import create_random_user
+from app.tests.utils.spotify_user import create_random_spotify_user, random_token_info
 from app.tests.utils.utils import random_lower_string
 from app import crud
 
@@ -86,3 +87,14 @@ def test_update_spotify_user(db: Session) -> None:
     assert spotify_user_retrieved.spotify_token_info == new_spotify_token_info
     assert spotify_user_retrieved.spotify_user_id == spotify_user.spotify_user_id
 
+
+def test_create_or_update_spotify_user_when_exists(db: Session) -> None:
+    user = create_random_user(db)
+    spotify_user = create_random_spotify_user(db, user_id=user.id)
+    spotify_user_2_info = SpotifyUserCreate(
+        spotify_user_id=spotify_user.spotify_user_id,
+        spotify_display_name=random_lower_string(),
+        spotify_token_info=random_token_info(),
+        user_id=user.id,
+    )
+    crud.create_or_update_spotify_user(session=db, spotify_user_in=spotify_user_2_info)
