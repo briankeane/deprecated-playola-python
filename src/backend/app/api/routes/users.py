@@ -186,7 +186,9 @@ def delete_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    if (user == current_user and not current_user.is_superuser) or (user != current_user and current_user.is_superuser):
+    if (user == current_user and not current_user.is_superuser) or (
+        user != current_user and current_user.is_superuser
+    ):
         statement = delete(Item).where(Item.owner_id == user_id)
         session.exec(statement)
         session.delete(user)

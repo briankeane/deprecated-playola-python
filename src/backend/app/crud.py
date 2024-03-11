@@ -1,9 +1,18 @@
-from typing import Any
+from typing import Any, Type
 
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import (
+    Item,
+    ItemCreate,
+    User,
+    UserCreate,
+    UserUpdate,
+    SpotifyUser,
+    SpotifyUserCreate,
+    SpotifyUserUpdate,
+)
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -47,9 +56,63 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
         return None
     return db_user
 
+
 def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item:
     db_item = Item.model_validate(item_in, update={"owner_id": owner_id})
     session.add(db_item)
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def create_spotify_user(
+    *, session: Session, spotify_user_in: SpotifyUserCreate
+) -> SpotifyUser:
+    db_spotify_user = SpotifyUser.model_validate(spotify_user_in)
+    session.add(db_spotify_user)
+    session.commit()
+    session.refresh(db_spotify_user)
+    return db_spotify_user
+
+
+def update_spotify_user(
+    *, session: Session, spotify_user_id: int, spotify_user_in: SpotifyUserUpdate
+) -> SpotifyUser | None:
+    spotify_user: SpotifyUser | None = session.get(SpotifyUser, spotify_user_id)
+    if not spotify_user:
+        return None
+    spotify_user_data = spotify_user_in.model_dump(exclude_unset=True)
+    spotify_user.sqlmodel_update(spotify_user_data)
+    session.add(spotify_user)
+    session.commit()
+    session.refresh(spotify_user)
+    return spotify_user
+
+
+def get_spotify_user_by_spotify_user_id(
+    *, session: Session, spotify_user_id: str
+) -> User | None:
+    statement = select(SpotifyUser).where(
+        SpotifyUser.spotify_user_id == spotify_user_id
+    )
+    session_spotify_user = session.exec(statement).first()
+    return session_spotify_user
+
+
+def create_or_update_spotify_user(
+    *, session: Session, spotify_user_in: SpotifyUserUpdate
+) -> SpotifyUser:
+    db_spotify_user: SpotifyUser | None = get_spotify_user_by_spotify_user_id(
+        session=session, spotify_user_id=spotify_user_in.spotify_user_id
+    )
+    if not db_spotify_user:
+        db_spotify_user = create_spotify_user(
+            session=session, spotify_user_in=spotify_user_in
+        )
+    else:
+        db_spotify_user = update_spotify_user(
+            session=session,
+            spotify_user_id=db_spotify_user.id,
+            spotify_user_in=spotify_user_in,
+        )
+    return db_spotify_user

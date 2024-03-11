@@ -1,4 +1,7 @@
-from sqlmodel import Field, Relationship, SQLModel
+from typing import Dict
+
+from sqlalchemy.sql.sqltypes import JSON
+from sqlmodel import Field, Relationship, SQLModel, Column
 
 
 # Shared properties
@@ -109,3 +112,31 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str
+
+
+class SpotifyUserBase(SQLModel):
+    spotify_user_id: str
+    spotify_display_name: str
+    spotify_token_info: dict
+
+
+class SpotifyUser(SpotifyUserBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    spotify_display_name: str | None = Field(default=None)
+    spotify_user_id: str | None = Field(default=None, nullable=False)
+    user_id: int = Field(default=None, foreign_key="user.id", nullable=False)
+    spotify_token_info: dict | None = Field(default=None, sa_column=Column(JSON))
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class SpotifyUserCreate(SpotifyUserBase):
+    user_id: int
+
+
+class SpotifyUserUpdate(SpotifyUserBase):
+    spotify_display_name: str | None = None
+    spotify_user_id: str | None = None
+    user_id: int | None = None
+    spotify_token_info: Dict | None = None
