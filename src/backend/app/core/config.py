@@ -96,7 +96,10 @@ class Settings(BaseSettings):
 
     SPOTIFY_CLIENT_ID: str
     SPOTIFY_CLIENT_SECRET: str
-    SPOTFIY_REDIRECT_URI: str
+
+    @property
+    def SPOTIFY_REDIRECT_URI(self) -> str:
+        return f"{self.SERVER_HOST}/v1/auth/spotify/code"
 
 
 settings = Settings()
