@@ -11,7 +11,7 @@ from app.models import (
     UserUpdate,
     SpotifyUser,
     SpotifyUserCreate,
-    SpotifyUserUpdate
+    SpotifyUserUpdate,
 )
 
 
@@ -74,7 +74,10 @@ def create_spotify_user(
     session.refresh(db_spotify_user)
     return db_spotify_user
 
-def update_spotify_user(*, session: Session, spotify_user_id: int, spotify_user_in: SpotifyUserUpdate) -> SpotifyUser | None:
+
+def update_spotify_user(
+    *, session: Session, spotify_user_id: int, spotify_user_in: SpotifyUserUpdate
+) -> SpotifyUser | None:
     spotify_user: SpotifyUser | None = session.get(SpotifyUser, spotify_user_id)
     if not spotify_user:
         return None
@@ -85,3 +88,31 @@ def update_spotify_user(*, session: Session, spotify_user_id: int, spotify_user_
     session.refresh(spotify_user)
     return spotify_user
 
+
+def get_spotify_user_by_spotify_user_id(
+    *, session: Session, spotify_user_id: str
+) -> User | None:
+    statement = select(SpotifyUser).where(
+        SpotifyUser.spotify_user_id == spotify_user_id
+    )
+    session_spotify_user = session.exec(statement).first()
+    return session_spotify_user
+
+
+def create_or_update_spotify_user(
+    *, session: Session, spotify_user_in: SpotifyUserUpdate
+) -> SpotifyUser:
+    db_spotify_user: SpotifyUser | None = get_spotify_user_by_spotify_user_id(
+        session=session, spotify_user_id=spotify_user_in.spotify_user_id
+    )
+    if not db_spotify_user:
+        db_spotify_user = create_spotify_user(
+            session=session, spotify_user_in=spotify_user_in
+        )
+    else:
+        db_spotify_user = update_spotify_user(
+            session=session,
+            spotify_user_id=db_spotify_user.id,
+            spotify_user_in=spotify_user_in,
+        )
+    return db_spotify_user
